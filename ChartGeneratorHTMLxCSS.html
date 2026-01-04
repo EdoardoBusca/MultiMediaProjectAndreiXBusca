@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pie Chart Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .input-area {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .chart-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .data-row {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .data-row input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .data-row input[type="text"] {
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .data-row input[type="number"] {
+            width: 80px;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .chart-container {
+            width: 300px;
+            height: 300px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pie Chart Generator</h1>
+        
+        <div class="content">
+            <div class="input-area">
+                <h2>Enter Your Data</h2>
+                
+                <button id="drawBtn">Generate Pie Chart</button>
+
+                <div class="data-row" style="margin-top:10px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="soundEnabled" checked>
+                        Enable sound
+                    </label>
+                </div>
+
+                <div id="dataRows"></div>
+            </div>
+            
+            <div class="chart-area">
+                <h2>Your Pie Chart</h2>
+                <div class="chart-container">
+                    <canvas id="pieCanvas" width="400" height="400" aria-label="Pie chart canvas"></canvas>
+                </div>
+                
+                <div class="legend" id="legend"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById("pieCanvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+
+            const drawBtn = document.getElementById('drawBtn');
+            const soundEnabled = document.getElementById('soundEnabled');
+            const legend = document.getElementById('legend');
+
+            // Create data rows dynamically
+            const dataRowsContainer = document.getElementById('dataRows');
+            const dataRows = [
+                { label: 'A', defaultValue: '1', defaultColor: '#e74c3c' },
+                { label: 'B', defaultValue: '1', defaultColor: '#f39c12' },
+                { label: 'C', defaultValue: '1', defaultColor: '#f1c40f' },
+                { label: 'D', defaultValue: '1', defaultColor: '#2ecc71' }
+            ];
+
+            dataRows.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'data-row';
+                rowDiv.innerHTML = `
+                    <input type="text" placeholder="Label" value="${row.label}" class="label-input" data-index="${index}">
+                    <input type="number" placeholder="Value" value="${row.defaultValue}" class="value-input" data-index="${index}">
+                    <input type="color" value="${row.defaultColor}" class="color-box color-input" data-index="${index}">
+                `;
+                dataRowsContainer.appendChild(rowDiv);
+            });
+
+            drawBtn.addEventListener('click', () => {
+                // Gather data from inputs
+                const labels = document.querySelectorAll('.label-input');
+                const values = document.querySelectorAll('.value-input');
+                const colors = document.querySelectorAll('.color-input');
+
+                const data = [];
+                let validCount = 0;
+
+                labels.forEach((label, index) => {
+                    const value = parseFloat(values[index].value) || 0;
+                    const color = colors[index].value;
+                    if (value > 0) {
+                        data.push({
+                            label: label.value || `Item ${index + 1}`,
+                            value: value,
+                            color: color
+                        });
+                        validCount++;
+                    }
+                });
+
+                if (validCount === 0) return;
+
+                const total = data.reduce((a, b) => a + b.value, 0);
+
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const radius = Math.min(canvas.width, canvas.height) / 2 - 10;
+
+                let startAngle = 0;
+
+                // Draw pie slices
+                data.forEach(item => {
+                    const sliceAngle = (item.value / total) * 2 * Math.PI;
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.fillStyle = item.color;
+                    ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Draw border
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    startAngle += sliceAngle;
+                });
+
+                // Update legend
+                legend.innerHTML = '';
+                data.forEach(item => {
+                    const percentage = ((item.value / total) * 100).toFixed(1);
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.innerHTML = `
+                        <div class="legend-color" style="background-color: ${item.color};"></div>
+                        <span>${item.label} (${percentage}%)</span>
+                    `;
+                    legend.appendChild(legendItem);
+                });
+
+                if (soundEnabled && soundEnabled.checked) {
+                    const vol = 1.0;
+                    playBeep(0.16, 700, vol);
+                }
+            });
+        });
+
+        function playBeep(duration = 0.15, frequency = 440, volume = 0.25) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioCtx();
+
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                    if (audioCtx.close) audioCtx.close();
+                }, duration * 1000);
+            } catch (err) {
+                console.warn('Audio play failed or Web Audio API unsupported:', err);
+            }
+        }
+    </script>
+</body>
+</html>
