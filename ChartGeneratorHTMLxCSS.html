@@ -173,7 +173,7 @@
             const soundEnabled = document.getElementById('soundEnabled');
             const legend = document.getElementById('legend');
 
-            // Create data rows dynamically
+            // coloane dinamice
             const dataRowsContainer = document.getElementById('dataRows');
             const dataRows = [
                 { label: 'A', defaultValue: '1', defaultColor: '#e74c3c' },
@@ -194,7 +194,7 @@
             });
 
             drawBtn.addEventListener('click', () => {
-                // Gather data from inputs
+                // adaugam datele din inputuri
                 const labels = document.querySelectorAll('.label-input');
                 const values = document.querySelectorAll('.value-input');
                 const colors = document.querySelectorAll('.color-input');
@@ -219,7 +219,7 @@
 
                 const total = data.reduce((a, b) => a + b.value, 0);
 
-                // Clear canvas
+                // curatam canvasul
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 const cx = canvas.width / 2;
@@ -228,7 +228,7 @@
 
                 let startAngle = 0;
 
-                // Draw pie slices
+                // desenam bucatile din piechart
                 data.forEach(item => {
                     const sliceAngle = (item.value / total) * 2 * Math.PI;
 
@@ -239,7 +239,7 @@
                     ctx.closePath();
                     ctx.fill();
 
-                    // Draw border
+                    // Desenam borderul 
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
@@ -247,7 +247,7 @@
                     startAngle += sliceAngle;
                 });
 
-                // Update legend
+            
                 legend.innerHTML = '';
                 data.forEach(item => {
                     const percentage = ((item.value / total) * 100).toFixed(1);
