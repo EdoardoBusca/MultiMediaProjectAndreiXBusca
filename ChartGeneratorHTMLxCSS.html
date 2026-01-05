@@ -15,98 +15,119 @@
         body {
             background-color: #f0f2f5;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         
         .container {
             max-width: 900px;
-            margin: 0 auto;
+            width: 100%;
             background: white;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            padding: 30px;
         }
         
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         
         .content {
             display: flex;
-            gap: 20px;
+            gap: 30px;
+            flex-wrap: wrap; 
         }
         
+
         .input-area {
             flex: 1;
-            padding: 15px;
+            min-width: 300px;
+            padding: 20px;
             background: #f8f9fa;
             border-radius: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         
-        .chart-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
         }
+        
+
+        #drawBtn { background: #3498db; color: white; }
+        #drawBtn:hover { background: #2980b9; }
+
+        #addBtn { background: #27ae60; color: white; }
+        #addBtn:hover { background: #219a52; }
         
         .data-row {
             display: flex;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             gap: 10px;
             align-items: center;
+            background: white;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #eee;
         }
         
-        .data-row input {
+        input {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
         
-        .data-row input[type="text"] {
-            flex: 1;
-            max-width: 150px;
-        }
-        
-        .data-row input[type="number"] {
-            width: 80px;
-        }
-        
-        .color-box {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-        }
-        
-        button {
-            background: #3498db;
+        .label-input { flex: 2; }
+        .value-input { width: 70px; }
+        .color-input { width: 35px; height: 35px; padding: 2px; cursor: pointer; }
+
+        .delete-btn {
+            background: #e74c3c;
             color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
+            width: 30px; height: 30px;
+            padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
         }
-        
-        button:hover {
-            background: #2980b9;
-        }
-        
-        .chart-container {
-            width: 300px;
-            height: 300px;
-            margin-bottom: 20px;
-            background: #f8f9fa;
-            border-radius: 50%;
+        .delete-btn:hover { background: #c0392b; }
+
+        .checkbox-wrapper {
+            margin-top: 15px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border: 2px dashed #bdc3c7;
+            gap: 8px;
+            color: #2c3e50;
+        }
+        
+        .chart-area {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        canvas {
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         
         .legend {
@@ -114,6 +135,7 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            margin-top: 20px;
         }
         
         .legend-item {
@@ -123,41 +145,36 @@
             background: #f8f9fa;
             padding: 5px 10px;
             border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid #eee;
         }
         
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-        }
+        .legend-color { width: 15px; height: 15px; border-radius: 50%; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Pie Chart Generator</h1>
         
         <div class="content">
             <div class="input-area">
-                <h2>Enter Your Data</h2>
-                
-                <button id="drawBtn">Generate Pie Chart</button>
-
-                <div class="data-row" style="margin-top:10px; align-items:center;">
-                    <label style="display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="soundEnabled" checked>
-                        Enable sound
-                    </label>
+                <div class="controls">
+                    <button id="drawBtn">Generate Chart</button>
+                    <button id="addBtn">+ Add Entry</button>
                 </div>
 
-                <div id="dataRows"></div>
+                <div id="dataRows">
+                    </div>
+                
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="soundEnabled" checked>
+                    <label for="soundEnabled">Enable sound effect</label>
+                </div>
             </div>
             
             <div class="chart-area">
-                <h2>Your Pie Chart</h2>
-                <div class="chart-container">
-                    <canvas id="pieCanvas" width="400" height="400" aria-label="Pie chart canvas"></canvas>
-                </div>
-                
+                <canvas id="pieCanvas" width="350" height="350"></canvas>
                 <div class="legend" id="legend"></div>
             </div>
         </div>
@@ -165,132 +182,129 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById("pieCanvas");
-            if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-
+            const container = document.getElementById('dataRows');
             const drawBtn = document.getElementById('drawBtn');
-            const soundEnabled = document.getElementById('soundEnabled');
+            const addBtn = document.getElementById('addBtn');
+            const canvas = document.getElementById("pieCanvas");
+            const ctx = canvas.getContext("2d");
             const legend = document.getElementById('legend');
+            const soundEnabled = document.getElementById('soundEnabled');
 
-            // coloane dinamice
-            const dataRowsContainer = document.getElementById('dataRows');
-            const dataRows = [
-                { label: 'A', defaultValue: '1', defaultColor: '#e74c3c' },
-                { label: 'B', defaultValue: '1', defaultColor: '#f39c12' },
-                { label: 'C', defaultValue: '1', defaultColor: '#f1c40f' },
-                { label: 'D', defaultValue: '1', defaultColor: '#2ecc71' }
-            ];
+            // defaults
+            createRow('Item A', 10, '#3498db');
+            createRow('Item B', 20, '#e74c3c');
+            createRow('Item C', 30, '#f1c40f');
 
-            dataRows.forEach((row, index) => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'data-row';
-                rowDiv.innerHTML = `
-                    <input type="text" placeholder="Label" value="${row.label}" class="label-input" data-index="${index}">
-                    <input type="number" placeholder="Value" value="${row.defaultValue}" class="value-input" data-index="${index}">
-                    <input type="color" value="${row.defaultColor}" class="color-box color-input" data-index="${index}">
+            //add coloana dinamic-
+            function createRow(labelVal = '', numVal = 0, colorVal = '#ffffff') {
+                const row = document.createElement('div');
+                row.className = 'data-row';
+                
+                row.innerHTML = `
+                    <input type="text" placeholder="Label" value="${labelVal}" class="label-input">
+                    <input type="number" placeholder="Value" value="${numVal}" class="value-input">
+                    <input type="color" value="${colorVal}" class="color-input">
+                    <button class="delete-btn" onclick="this.parentElement.remove()">✕</button>
                 `;
-                dataRowsContainer.appendChild(rowDiv);
+                
+                container.appendChild(row);
+            }
+
+            //  buton add
+            addBtn.addEventListener('click', () => {
+                createRow('New Item', 10, getRandomColor());
             });
 
             drawBtn.addEventListener('click', () => {
-                // adaugam datele din inputuri
                 const labels = document.querySelectorAll('.label-input');
                 const values = document.querySelectorAll('.value-input');
                 const colors = document.querySelectorAll('.color-input');
 
-                const data = [];
-                let validCount = 0;
+                let data = [];
+                let total = 0;
 
-                labels.forEach((label, index) => {
-                    const value = parseFloat(values[index].value) || 0;
-                    const color = colors[index].value;
-                    if (value > 0) {
-                        data.push({
-                            label: label.value || `Item ${index + 1}`,
-                            value: value,
-                            color: color
-                        });
-                        validCount++;
+                // Gather data
+                labels.forEach((lbl, i) => {
+                    const val = parseFloat(values[i].value);
+                    if (val > 0) {
+                        data.push({ label: lbl.value, value: val, color: colors[i].value });
+                        total += val;
                     }
                 });
 
-                if (validCount === 0) return;
+                if (total === 0) return; // Do nothing if no data
 
-                const total = data.reduce((a, b) => a + b.value, 0);
-
-                // curatam canvasul
+                // Clear Canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+                
+                let startAngle = 0;
                 const cx = canvas.width / 2;
                 const cy = canvas.height / 2;
-                const radius = Math.min(canvas.width, canvas.height) / 2 - 10;
+                const radius = 160; 
 
-                let startAngle = 0;
+                legend.innerHTML = ''; 
 
-                // desenam bucatile din piechart
+                // Draw Slices
                 data.forEach(item => {
+                    // math
                     const sliceAngle = (item.value / total) * 2 * Math.PI;
 
+                    // bucati din chart
                     ctx.beginPath();
                     ctx.moveTo(cx, cy);
-                    ctx.fillStyle = item.color;
                     ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
-                    ctx.closePath();
+                    ctx.fillStyle = item.color;
                     ctx.fill();
-
-                    // Desenam borderul 
-                    ctx.strokeStyle = '#fff';
+                    ctx.strokeStyle = '#ffffff'; //pentru border simplu alb
                     ctx.lineWidth = 2;
                     ctx.stroke();
+                    
+                    // Update Legend
+                    const percent = ((item.value / total) * 100).toFixed(1);
+                    legend.innerHTML += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background:${item.color}"></div>
+                            <span>${item.label} (${percent}%)</span>
+                        </div>
+                    `;
 
                     startAngle += sliceAngle;
                 });
 
-            
-                legend.innerHTML = '';
-                data.forEach(item => {
-                    const percentage = ((item.value / total) * 100).toFixed(1);
-                    const legendItem = document.createElement('div');
-                    legendItem.className = 'legend-item';
-                    legendItem.innerHTML = `
-                        <div class="legend-color" style="background-color: ${item.color};"></div>
-                        <span>${item.label} (${percentage}%)</span>
-                    `;
-                    legend.appendChild(legendItem);
-                });
-
-                if (soundEnabled && soundEnabled.checked) {
-                    const vol = 1.0;
-                    playBeep(0.16, 700, vol);
-                }
+                // Play Sound
+                if(soundEnabled.checked) playSound();
             });
-        });
 
-        function playBeep(duration = 0.15, frequency = 440, volume = 0.25) {
-            try {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                const audioCtx = new AudioCtx();
+        
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
 
+            // pentru audio parlit
+            function playSound() {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
-
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-
+                
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
-
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 550; 
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+                
                 oscillator.start();
                 setTimeout(() => {
                     oscillator.stop();
-                    if (audioCtx.close) audioCtx.close();
-                }, duration * 1000);
-            } catch (err) {
-                console.warn('Audio play failed or Web Audio API unsupported:', err);
+                    audioCtx.close();
+                }, 150);
             }
-        }
+        });
     </script>
 </body>
 </html>
